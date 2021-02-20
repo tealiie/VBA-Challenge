@@ -1,0 +1,111 @@
+Sub Stock_Data_Analysis()
+
+    For Each ws In ThisWorkbook.Worksheets
+    ws.Activate
+   
+    Dim ticker_symbol As String
+    Dim total_stock_volume As Double
+    Dim closing_price As Double
+    Dim opening_price As Double
+    Dim price_change As Double
+    
+    Dim greatest_increase As Double
+    Dim greatest_decrease As Double
+    Dim greatest_total_volume As Double
+    
+    Dim max_ticker As String
+    Dim min_ticker As String
+    Dim volume_ticker As String
+    
+    Dim summary_row As Integer
+    summary_row = 2
+    
+    Dim last_row As Double
+    last_row = Cells(Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To last_row
+         
+        total_stock_volume = total_stock_volume + Cells(i, 7).Value
+        
+        If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+        ticker_symbol = Cells(i, 1).Value
+        
+        Range("I" & summary_row).Value = ticker_symbol
+        Range("L" & summary_row).Value = total_stock_volume
+        total_stock_volume = 0
+        
+        price_change = closing_price - opening_price
+
+            If opening_price = 0 Then
+                percentage_change = 0
+            Else
+                percentage_change = price_change / opening_price * 100
+            End If
+       
+        Range("J" & summary_row).Value = price_change
+        Range("K" & summary_row).Value = percentage_change
+        
+        closing_price = 0
+        opening_price = 0
+        
+            If Range("J" & summary_row).Value = 0 Then
+                Range("J" & summary_row).Interior.ColorIndex = 2
+            ElseIf Range("J" & summary_row).Value < 0 Then
+                Range("J" & summary_row).Interior.ColorIndex = 3
+            Else
+                Range("J" & summary_row).Interior.ColorIndex = 4
+            End If
+
+        summary_row = summary_row + 1
+        
+            Else
+
+        total_stock_volume = total_stock_volume + Cells(i, 7).Value
+        closing_price = closing_price + Cells(i, 6).Value
+        opening_price = opening_price + Cells(i, 3).Value
+                
+        End If
+
+        greatest_increase = Application.WorksheetFunction.Max(Range("K2:K" & last_row))
+        greatest_decrease = Application.WorksheetFunction.Min(Range("K2:K" & last_row))
+        greatest_total_volume = Application.WorksheetFunction.Max(Range("L2:L" & last_row))
+                 
+    
+        If Cells(i, 11).Value = greatest_increase Then
+            max_ticker = Cells(i, 9).Value
+        ElseIf Cells(i, 11).Value = greatest_decrease Then
+            min_ticker = Cells(i, 9).Value
+        ElseIf Cells(i, 12).Value = greatest_total_volume Then
+            volume_ticker = Cells(i, 9).Value
+        End If
+
+    Next i
+               
+        Range("Q2").Value = greatest_increase
+        Range("Q2").NumberFormat = "0.00%"
+        Range("P2") = max_ticker
+        Range("Q3").Value = greatest_decrease
+        Range("Q3").NumberFormat = "0.00%"
+        Range("P3") = min_ticker
+        Range("Q4").Value = greatest_total_volume
+        Range("P4") = volume_ticker
+  
+        Range("I1, P1").Value = "Ticker"
+        Range("J1").Value = "Yearly Change"
+        Range("K1").Value = "Percentage Change"
+        Range("L1").Value = "Total Stock Volume"
+        Range("O2").Value = "Greatest % Increase"
+        Range("O3").Value = "Greatest % Decrease"
+        Range("Q1").Value = "Value"
+        Range("O4").Value = "Greatest Total Volume"
+        Range("J1:N1").Columns.AutoFit
+        Range("O4, Q4").Columns.AutoFit
+        Columns("K").NumberFormat = "0.00%"
+     
+    Next ws
+ 
+End Sub
+
+
+
+
